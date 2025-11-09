@@ -1,0 +1,76 @@
+digraph ReasonOS_DataFlow {
+  rankdir=LR;
+  bgcolor=white;
+
+  node [shape=box, style="rounded,filled", fontname="Arial"];
+
+  // User interaction
+  User [label="👤 User", fillcolor="#e3f2fd", shape=oval];
+
+  // Frontend
+  UI [label="React UI\nhttp://localhost:3001", fillcolor="#bbdefb"];
+
+  // API calls
+  AnalyzeAPI [label="POST /api/v1/graph/analyze\n{repo_path}", fillcolor="#fff9c4", shape=note];
+  QueryAPI [label="POST /api/v1/graph/query\n{prompt}", fillcolor="#fff9c4", shape=note];
+  ExportAPI [label="GET /api/v1/graph/export/dot", fillcolor="#fff9c4", shape=note];
+
+  // Backend processing
+  Backend [label="FastAPI Backend\nhttp://localhost:8000", fillcolor="#c8e6c9"];
+
+  // Analysis pipeline
+  Scan [label="1️⃣ Scan Files\n(.py, .js, .ts)", fillcolor="#b2dfdb"];
+  Parse [label="2️⃣ Tree-sitter Parse\n(AST extraction)", fillcolor="#b2dfdb"];
+  Build [label="3️⃣ Build Graph\n(Nodes + Edges)", fillcolor="#b2dfdb"];
+  Index [label="4️⃣ Index\n(Create mappings)", fillcolor="#b2dfdb"];
+
+  // Storage
+  Cache [label="📦 Memory Cache\n_orchestrators[path]", fillcolor="#f8bbd0"];
+  Graph [label="🕸️ Code Graph\n{\n  nodes: {...},\n  edges: [...],\n  stats: {...}\n}", fillcolor="#f8bbd0"];
+
+  // AI processing
+  AI [label="🤖 AI Agent\nSemanticQueryAgent", fillcolor="#ffccbc"];
+  Gemini [label="🧠 Google Gemini\n2.0 Flash", fillcolor="#ff6f00", fontcolor=white];
+  Context [label="📋 Graph Context\n- DOT format\n- Dependencies\n- Statistics", fillcolor="#ffe0b2"];
+
+  // Results
+  Analysis [label="📊 Analysis Result\n{\n  statistics,\n  graph_id\n}", fillcolor="#dcedc8"];
+  QueryResult [label="💡 Query Result\n{\n  understood_intent,\n  analysis_result,\n  ai_reasoning\n}", fillcolor="#dcedc8"];
+  DOTExport [label="📄 DOT File\ndependency-graph.dot", fillcolor="#dcedc8"];
+
+  // Data flow
+  User -> UI [label="1. Opens app"];
+  UI -> AnalyzeAPI [label="2. Analyze repo"];
+  AnalyzeAPI -> Backend;
+  Backend -> Scan;
+  Scan -> Parse [label="Files"];
+  Parse -> Build [label="AST"];
+  Build -> Index [label="Graph"];
+  Index -> Graph [label="Stores"];
+  Graph -> Cache [label="Caches"];
+  Cache -> Analysis;
+  Analysis -> UI [label="3. Shows stats"];
+
+  // Query flow
+  UI -> QueryAPI [label="4. User query"];
+  QueryAPI -> Backend;
+  Backend -> AI;
+  AI -> Cache [label="Reads"];
+  Cache -> Context [label="Builds"];
+  Context -> Gemini [label="With context"];
+  Gemini -> AI [label="Understanding"];
+  AI -> QueryResult;
+  QueryResult -> UI [label="5. Shows result"];
+
+  // Export flow
+  UI -> ExportAPI [label="6. Download"];
+  ExportAPI -> Backend;
+  Backend -> Graph [label="to_dot()"];
+  Graph -> DOTExport;
+  DOTExport -> UI [label="7. File download"];
+
+  // Styling
+  {rank=same; AnalyzeAPI; QueryAPI; ExportAPI;}
+  {rank=same; Scan; Parse; Build; Index;}
+  {rank=same; Cache; Graph;}
+}

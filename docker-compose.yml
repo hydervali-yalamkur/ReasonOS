@@ -1,0 +1,22 @@
+﻿version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=production
+      - GEMINI_API_KEY=AIzaSyDv91j15Eikp-1d4gAONku5VGLXmqLmCFw
+      - FRONTEND_URL=https://your-domain.com
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "80:80"
+    environment:
+      - VITE_API_URL=http://backend:8000
+    depends_on:
+      - backend
+    restart: unless-stopped
